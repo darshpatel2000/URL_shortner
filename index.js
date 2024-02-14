@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const {connectToMongo} = require('./connection');
-const {restrictToLoggedinUserOnly,checkAuth} = require('./middleware/auth');
+const {checkForAuthentication, restrictTo} = require('./middleware/auth');
 
 const URL = require('./models/url');
 
@@ -21,11 +21,12 @@ app.set('views', path.resolve('./views'));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+app.use(cookieParser())
+app.use(checkForAuthentication);
 
-app.use('/url',restrictToLoggedinUserOnly, urlRoutes);
+app.use('/url',restrictTo(["NORMAL"]), urlRoutes);
 app.use('/user', userRoutes);
-app.use('/',checkAuth, staticRoutes);
+app.use('/', staticRoutes);
 
 
 
